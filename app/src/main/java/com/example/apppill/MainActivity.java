@@ -18,7 +18,7 @@ import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener{
 
-    private TextView register;
+    private TextView register, login;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,6 +27,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         register = (TextView) this.findViewById(R.id.mainRegisterButton);
         register.setOnClickListener(this);
+
+        login = (TextView) this.findViewById(R.id.mainLoginButton);
+        login.setOnClickListener(this);
     }
 
     @Override
@@ -35,9 +38,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             case R.id.mainRegisterButton:
                 startActivity(new Intent(this, RegisterUser.class));
                 break;
-            //case R.id.mainLoginButton:
-                   //userlogin();
-                   //break;
+            case R.id.mainLoginButton:
+                startActivity(new Intent(this, LoginUser.class));
+                break;
         }
     }
 }

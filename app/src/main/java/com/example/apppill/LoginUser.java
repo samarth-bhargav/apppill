@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Patterns;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -20,29 +21,30 @@ import com.google.firebase.database.FirebaseDatabase;
 
 public class LoginUser extends AppCompatActivity implements View.OnClickListener{
     private TextView banner, register;
-    private EditText editFullName;
-    private EditText editUsername;
+    private EditText editEmail;
     private EditText editPassword;
     private ProgressBar progressBar;
+    private Button login;
 
     private FirebaseAuth mAuth;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //setContentView(R.layout.activity_register_user);
+        setContentView(R.layout.activity_login_main);
         //^obv not for login idk j do the gui it's 11.37 at night oke
         mAuth = FirebaseAuth.getInstance();
 
-        banner = this.findViewById(R.id.logo);
+        banner = this.findViewById(R.id.loginLogo);
         banner.setOnClickListener(this);
 
-        register = this.findViewById(R.id.registerButton);
-        register.setOnClickListener(this);
+        editEmail = findViewById(R.id.loginEmail);
+        editPassword = findViewById(R.id.loginPassword);
 
-        editUsername = findViewById(R.id.email);
-        editPassword = findViewById(R.id.password);
+        login = findViewById(R.id.loginButton);
+        login.setOnClickListener(this);
 
-        progressBar = findViewById(R.id.registerProgressBar);
+        progressBar = findViewById(R.id.loginProgressBar);
+        progressBar.setVisibility(View.GONE);
     }
     @Override
     public void onClick(View view) {
@@ -50,39 +52,42 @@ public class LoginUser extends AppCompatActivity implements View.OnClickListener
             case R.id.banner:
                 startActivity(new Intent(LoginUser.this, MainActivity.class));
                 break;
-            case R.id.LoginButton:
+            case R.id.loginButton:
                 loginUser();
                 break;
         }
     }
     //idk whatever shit needs to go here to make it like work and shit
     public void loginUser(){
-        String username = editUsername.getText().toString().trim();
-        String youshallnotpass = editPassword.getText().toString.trim();
-        if(username.length() == 0){
-            editUsername.setError("put in a username lmao");
-            editUsername.requestFocus();
+        progressBar.setVisibility(View.VISIBLE);
+        String email = editEmail.getText().toString().trim();
+        String password = editPassword.getText().toString().trim();
+        if(email.length() == 0){
+            editEmail.setError("Please enter an email");
+            editEmail.requestFocus();
             return;
         }
-        if(!Patterns.EMAIL_ADDRESS.matcher(username).matches()){
-            editUsername.setError("put in a username that actually exists lmao");
-            editUsername.requestFocus();
+        if(!Patterns.EMAIL_ADDRESS.matcher(email).matches()){
+            editEmail.setError("Please enter a valid email");
+            editEmail.requestFocus();
             return;
-        }
-        if(youshallnotpass.length() < 6){
-            editPassword.setError("put in a valid pw lol");
-            editPassword.requestFocus();
         }
         progressBar.setVisibility(View.VISIBLE);
-        mAuth.signInWithEmailAndPassword(username, youshallnotpass).addOnCompleteListener(new OnCompleteListener<AuthResult>(){
-            @Override
-            public void onComplete(@NonNull Task<AuthResult> amongus){
-                if(amongus.isSuccessful()){
-                    progressBar.setVisibility(View.GONE);
-                    startActivity(new Intent(LoginUser.this, MainActivity.class));
-                    finish();
-                }
-            }
-        });
-    }
+        mAuth.signInWithEmailAndPassword(email, password)
+                .addOnCompleteListener(new OnCompleteListener<AuthResult>(){
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> login){
+                        if(login.isSuccessful()){
+                            progressBar.setVisibility(View.GONE);
+                            Toast.makeText(LoginUser.this, "Welcome", Toast.LENGTH_LONG).show();
+                            startActivity(new Intent(LoginUser.this, MainActivity.class));
+                            //later make it go to user profile (camera)
+                        }
+                        else{
+                            Toast.makeText(LoginUser.this, "Something Went Wrong :(", Toast.LENGTH_LONG).show();
+                            progressBar.setVisibility(View.GONE);
+                        }
+                    }
+                });
+        }
 }

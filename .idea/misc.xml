@@ -3,6 +3,9 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/SharkTank/apppill/apppill/app/src/main/res/layout/activity_login_main.xml" value="0.264" />
+        <entry key="..\:/SharkTank/apppill/apppill/app/src/main/res/layout/activity_main.xml" value="0.22826086956521738" />
+        <entry key="..\:/SharkTank/apppill/apppill/app/src/main/res/layout/activity_register_user.xml" value="0.25416666666666665" />
         <entry key="..\:/Users/samar/AndroidStudioProjects/AppPill/app/src/main/res/layout/activity_main.xml" value="0.33" />
         <entry key="..\:/Users/samar/AndroidStudioProjects/AppPill/app/src/main/res/layout/activity_register_user.xml" value="0.44010282776349613" />
       </map>
