@@ -80,8 +80,7 @@ public class LoginUser extends AppCompatActivity implements View.OnClickListener
                         if(login.isSuccessful()){
                             progressBar.setVisibility(View.GONE);
                             Toast.makeText(LoginUser.this, "Welcome", Toast.LENGTH_LONG).show();
-                            startActivity(new Intent(LoginUser.this, MainActivity.class));
-                            //later make it go to user profile (camera)
+                            startActivity(new Intent(LoginUser.this, HomePage.class));
                         }
                         else{
                             Toast.makeText(LoginUser.this, "Something Went Wrong :(", Toast.LENGTH_LONG).show();
