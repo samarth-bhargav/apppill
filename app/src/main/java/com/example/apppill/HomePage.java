@@ -15,13 +15,22 @@ import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.Matrix;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.provider.MediaStore;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import java.io.File;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class HomePage extends AppCompatActivity implements View.OnClickListener{
 
@@ -49,6 +58,7 @@ public class HomePage extends AppCompatActivity implements View.OnClickListener{
                 if (result.getResultCode() == RESULT_OK && result.getData() != null){
                     Bundle bundle = result.getData().getExtras();
                     Bitmap bitmap = (Bitmap) bundle.get("data");
+                    bitmap = rotateBitmap(bitmap, 90);
                     display.setImageBitmap(bitmap);
                 }
             }
@@ -71,12 +81,14 @@ public class HomePage extends AppCompatActivity implements View.OnClickListener{
                     Manifest.permission.CAMERA}, 225);
         }
         Intent takePicture = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        Toast.makeText(HomePage.this, "hi", Toast.LENGTH_LONG).show();
-        if (takePicture.resolveActivity(getPackageManager()) == null){
-            launcher.launch(takePicture);
-        }
-        else{
-            Toast.makeText(HomePage.this, "There is an issue :((", Toast.LENGTH_SHORT).show();
-        }
+        launcher.launch(takePicture);
     }
+    private static Bitmap rotateBitmap(Bitmap img, int degree){
+        Matrix matrix = new Matrix();
+        matrix.postRotate(degree);
+        Bitmap rotatedImage = Bitmap.createBitmap(img, 0, 0, img.getWidth(), img.getHeight(), matrix, true);
+        img.recycle();
+        return rotatedImage;
+    }
+
 }
