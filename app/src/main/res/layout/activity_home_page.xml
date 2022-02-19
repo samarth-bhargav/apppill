@@ -54,11 +54,17 @@
         android:outlineProvider="bounds"
         android:shadowColor="#000000"
         android:shadowRadius="0"
+        android:text="Once you have taken an image, press dictate"
+        android:textAlignment="center"
+        android:textColor="@color/black"
+        android:typeface="monospace"
+        android:visibility="visible"
         app:layout_constraintBottom_toTopOf="@+id/homePageDictate"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.495"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/homePageImage"
-        app:layout_constraintVertical_bias="0.704" />
+        app:layout_constraintVertical_bias="0.704"
+        tools:visibility="visible" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
