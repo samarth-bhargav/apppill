@@ -14,6 +14,7 @@ import android.Manifest;
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -39,17 +40,19 @@ import com.google.mlkit.vision.text.TextRecognizer;
 import com.google.mlkit.vision.text.latin.TextRecognizerOptions;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-
+import java.util.Locale;
 
 
 public class HomePage extends AppCompatActivity implements View.OnClickListener{
 
     private Button dictate;
     private TextView banner, description;
-    private String resultText;
+    private Text resultText;
+    private Medicine medicine;
     private ImageView display;
     private ActivityResultLauncher launcher;
     public static final int MEDIA_TYPE_IMAGE = 1;
@@ -58,7 +61,12 @@ public class HomePage extends AppCompatActivity implements View.OnClickListener{
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home_page);
-
+        medicine = new Medicine();
+        try {
+            medicine.init(HomePage.this);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         description = findViewById(R.id.homePageText);
 
         display = findViewById(R.id.homePageImage);
@@ -82,7 +90,7 @@ public class HomePage extends AppCompatActivity implements View.OnClickListener{
                                     .addOnSuccessListener(new OnSuccessListener<Text>() {
                                         @Override
                                         public void onSuccess(Text text) {
-                                            resultText = text.getText();
+                                            resultText = text;
                                             Toast.makeText(HomePage.this, "Processed Image :D", Toast.LENGTH_SHORT).show();
                                         }
                                     });
@@ -101,7 +109,23 @@ public class HomePage extends AppCompatActivity implements View.OnClickListener{
                 break;
             case R.id.homePageDictate:
                 if (resultText != null){
-                    description.setText(resultText.toString());
+                    description.setText(resultText.getText());
+                    boolean noMedicine = true;
+                    for (Text.TextBlock block : resultText.getTextBlocks()){
+                        for (Text.Line line: block.getLines()){
+                            for (Text.Element word : line.getElements()){
+                                if (medicine.isMedicine(word.getText().toLowerCase(Locale.ROOT))){
+                                    Toast.makeText(HomePage.this, "Medicine: " + word.getText(), Toast.LENGTH_SHORT).show();
+                                    noMedicine = false;
+                                }
+                            }
+                        }
+                    }
+                    if (noMedicine)
+                        Toast.makeText(HomePage.this, "Please take a more proper image", Toast.LENGTH_SHORT).show();
+                    else{
+                        startActivity(new Intent(HomePage.this, DisplayUserInfo.class));
+                    }
                 }
                 else{
                     Toast.makeText(HomePage.this, "Please take an image", Toast.LENGTH_SHORT).show();
