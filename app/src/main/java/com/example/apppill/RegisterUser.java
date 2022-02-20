@@ -13,17 +13,23 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class RegisterUser extends AppCompatActivity implements View.OnClickListener{
     private TextView banner, register;
     private EditText editFullName;
     private EditText editEmail;
     private EditText editPassword;
-
+    private FirebaseFirestore db;
     private ProgressBar progressBar;
 
     private FirebaseAuth mAuth;
@@ -34,6 +40,7 @@ public class RegisterUser extends AppCompatActivity implements View.OnClickListe
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register_user);
         mAuth = FirebaseAuth.getInstance();
+        db = FirebaseFirestore.getInstance();
 
         banner = this.findViewById(R.id.logo);
         banner.setOnClickListener(this);
@@ -86,26 +93,23 @@ public class RegisterUser extends AppCompatActivity implements View.OnClickListe
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()){
-                            User user = new User(fullName, email);
-
-                            FirebaseDatabase.getInstance().getReference("Users")
-                                    .child(FirebaseAuth.getInstance().getCurrentUser().getUid())
-                                    .setValue(user).addOnCompleteListener(new OnCompleteListener<Void>() {
-                                @Override
-                                public void onComplete(@NonNull Task<Void> task) {
-                                    if (task.isSuccessful()){
-                                        Toast.makeText(RegisterUser.this, "User Has Been Registered", Toast.LENGTH_LONG).show();
-                                        progressBar.setVisibility(View.GONE);
-                                        startActivity(new Intent(RegisterUser.this, MainActivity.class));
-                                    }
-                                    else{
-                                        Toast.makeText(RegisterUser.this, "Something Went Wrong :(", Toast.LENGTH_LONG).show();
-                                    }
-                                }
-                            });
+                            Map<String, Object> user = new HashMap<>();
+                            user.put("Email", email);
+                            user.put("fullName", fullName);
+                            db.collection("users")
+                                    .add(user)
+                                    .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                                        @Override
+                                        public void onSuccess(DocumentReference documentReference) {
+                                            Toast.makeText(RegisterUser.this, "User has been registered!", Toast.LENGTH_SHORT).show();
+                                            progressBar.setVisibility(View.GONE);
+                                            startActivity(new Intent(RegisterUser.this, MainActivity.class));
+                                        }
+                                    });
                         }
                         else{
                             Toast.makeText(RegisterUser.this, "Failed To Register", Toast.LENGTH_LONG).show();
+                            progressBar.setVisibility(View.GONE);
                         }
                     }
                 });
