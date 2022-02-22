@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.speech.tts.TextToSpeech;
 import android.view.View;
 import android.widget.*;
 import android.app.Activity;
@@ -13,18 +14,27 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-
+import java.util.Locale;
 
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener{
 
     private TextView register, login;
-
+    private TextToSpeech tts;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        tts = new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener() {
+            @Override
+            public void onInit(int i) {
+                if (i != TextToSpeech.ERROR){
+                    tts.setLanguage(Locale.UK);
+                    tts.speak("App Pill, Register or Login", TextToSpeech.QUEUE_FLUSH, null);
+                }
+            }
+        });
         register = (TextView) this.findViewById(R.id.mainRegisterButton);
         register.setOnClickListener(this);
 
@@ -42,5 +52,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 startActivity(new Intent(this, LoginUser.class));
                 break;
         }
+    }
+    public void onPause(){
+        if (tts != null){
+            tts.stop();
+            tts.shutdown();
+        }
+        super.onPause();
     }
 }

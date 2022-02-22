@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.speech.tts.TextToSpeech;
 import android.util.Patterns;
 import android.view.View;
 import android.widget.EditText;
@@ -22,6 +23,7 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 public class RegisterUser extends AppCompatActivity implements View.OnClickListener{
@@ -31,7 +33,7 @@ public class RegisterUser extends AppCompatActivity implements View.OnClickListe
     private EditText editPassword;
     private FirebaseFirestore db;
     private ProgressBar progressBar;
-
+    private TextToSpeech tts;
     private FirebaseAuth mAuth;
 
 
@@ -41,6 +43,15 @@ public class RegisterUser extends AppCompatActivity implements View.OnClickListe
         setContentView(R.layout.activity_register_user);
         mAuth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
+        tts = new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener() {
+            @Override
+            public void onInit(int i) {
+                if (i != TextToSpeech.ERROR){
+                    tts.setLanguage(Locale.UK);
+                    tts.speak("Please Register", TextToSpeech.QUEUE_FLUSH, null);
+                }
+            }
+        });
 
         banner = this.findViewById(R.id.logo);
         banner.setOnClickListener(this);
@@ -73,16 +84,19 @@ public class RegisterUser extends AppCompatActivity implements View.OnClickListe
 
         if (fullName.isEmpty()){
             editFullName.setError("Full Name is Required");
+            tts.speak("Full Name is Required", TextToSpeech.QUEUE_FLUSH, null);
             editFullName.requestFocus();
             return;
         }
         if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()){
             editEmail.setError("Email is Required");
+            tts.speak("Email is Required", TextToSpeech.QUEUE_FLUSH, null);
             editEmail.requestFocus();
             return;
         }
         if (password.length() < 6){
             editPassword.setError("Password must be at least 6 characters");
+            tts.speak("Password needs to be 6 characters", TextToSpeech.QUEUE_FLUSH, null);
             editPassword.requestFocus();
             return;
         }
@@ -101,6 +115,7 @@ public class RegisterUser extends AppCompatActivity implements View.OnClickListe
                                     .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
                                         @Override
                                         public void onSuccess(DocumentReference documentReference) {
+                                            tts.speak("User has been registered", TextToSpeech.QUEUE_FLUSH, null);
                                             Toast.makeText(RegisterUser.this, "User has been registered!", Toast.LENGTH_SHORT).show();
                                             progressBar.setVisibility(View.GONE);
                                             startActivity(new Intent(RegisterUser.this, MainActivity.class));
@@ -108,10 +123,18 @@ public class RegisterUser extends AppCompatActivity implements View.OnClickListe
                                     });
                         }
                         else{
+                            tts.speak("Failed to Register", TextToSpeech.QUEUE_FLUSH, null);
                             Toast.makeText(RegisterUser.this, "Failed To Register", Toast.LENGTH_LONG).show();
                             progressBar.setVisibility(View.GONE);
                         }
                     }
                 });
+    }
+    public void onPause(){
+        if (tts != null){
+            tts.stop();
+            tts.shutdown();
+        }
+        super.onPause();
     }
 }
