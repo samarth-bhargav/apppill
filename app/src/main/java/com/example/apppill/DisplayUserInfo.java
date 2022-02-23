@@ -27,7 +27,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
 
-public class DisplayUserInfo extends AppCompatActivity implements View.OnClickListener{
+public class DisplayUserInfo extends AppCompatActivity implements View.OnClickListener {
 
     private Button yesButton, noButton;
     private TextView displayMedicine, displayDosage, displayLastTimeTaken, displayLogo;
@@ -37,8 +37,9 @@ public class DisplayUserInfo extends AppCompatActivity implements View.OnClickLi
     public String medicine;
     public String dosage;
     private MedicineDatabase medicineDatabase;
-    private Map<String, Object> medicines;
     private TextToSpeech tts;
+    DocumentReference medicineLog;
+    CollectionReference medicines;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,9 +54,6 @@ public class DisplayUserInfo extends AppCompatActivity implements View.OnClickLi
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-        medicines = new HashMap<>();
-
 
         yesButton = findViewById(R.id.UserInfoYes);
         yesButton.setOnClickListener(this);
@@ -75,6 +73,14 @@ public class DisplayUserInfo extends AppCompatActivity implements View.OnClickLi
         dosage = medicineDatabase.getDosage(medicineText);
         displayMedicine.setText("Medicine: " + medicine);
         displayDosage.setText("Dosage: " + dosage);
+        medicineLog = db.collection("users")
+                .document(currentUser.getUid())
+                .collection("Medicines")
+                .document(medicine);
+        medicines = db.collection("users")
+                .document(currentUser.getUid())
+                .collection("Medicines");
+        displayLastTimeTaken();
 
         displayLogo = findViewById(R.id.UserInfoLogo);
         displayLogo.setOnClickListener(this);
@@ -82,47 +88,69 @@ public class DisplayUserInfo extends AppCompatActivity implements View.OnClickLi
 
     @Override
     public void onClick(View view) {
-        switch (view.getId()){
+        switch (view.getId()) {
             case R.id.UserInfoLogo:
                 startActivity(new Intent(DisplayUserInfo.this, MainActivity.class));
+                break;
             case R.id.UserInfoYes:
-                DocumentReference medicineLog =
-                        db.collection("users")
-                        .document(currentUser.getUid())
-                        .collection("Medicines")
-                        .document(medicine);
-                CollectionReference medicines =
-                        db.collection("users")
-                        .document(currentUser.getUid())
-                        .collection("Medicines");
-                medicineLog.get()
-                        .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                            @Override
-                            public void onSuccess(DocumentSnapshot documentSnapshot) {
-                                if (documentSnapshot.exists()){
-                                    //user has taken medication before!
-                                    displayLastTimeTaken.setText("Last Time Taken: " + documentSnapshot.get("lastTimeTaken").toString());
-                                    medicineLog.update("lastTimeTaken", getCurrentTime());
-                                }
-                                else{
-                                    displayLastTimeTaken.setText("First Time Taking Pill");
-                                    Map<String, Object> lastTimeTaken = new HashMap<>();
-                                    lastTimeTaken.put("lastTimeTaken", getCurrentTime());
-                                    medicineLog.set(lastTimeTaken);
-                                }
-                            }
-                        })
-                        .addOnFailureListener(new OnFailureListener() {
-                            @Override
-                            public void onFailure(@NonNull Exception e) {
-                                Toast.makeText(DisplayUserInfo.this, "Could not find Document", Toast.LENGTH_SHORT).show();
-                            }
-                        });
+                medicineLogUpdate();
+                startActivity(new Intent(DisplayUserInfo.this, HomePage.class));
+                break;
+            case R.id.UserInfoNo:
+                Toast.makeText(DisplayUserInfo.this, "You did not take " + medicine, Toast.LENGTH_SHORT).show();
+                startActivity(new Intent(DisplayUserInfo.this, HomePage.class));
+                break;
         }
     }
-    public String getCurrentTime(){
+
+    public String getCurrentTime() {
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm");
         LocalDateTime now = LocalDateTime.now();
         return dtf.format(now);
+    }
+
+    public void displayLastTimeTaken() {
+        medicineLog.get()
+                .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                    @Override
+                    public void onSuccess(DocumentSnapshot documentSnapshot) {
+                        if (documentSnapshot.exists()) {
+                            //user has taken medication before!
+                            displayLastTimeTaken.setText("Last Time Taken: " + documentSnapshot.get("lastTimeTaken").toString());
+                        } else {
+                            displayLastTimeTaken.setText("First Time Taking Pill");
+                            Map<String, Object> lastTimeTaken = new HashMap<>();
+                            lastTimeTaken.put("lastTimeTaken", "First Time Taking Pill");
+                            medicineLog.set(lastTimeTaken);
+                        }
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Toast.makeText(DisplayUserInfo.this, "Could not find Document", Toast.LENGTH_SHORT).show();
+                    }
+                });
+    }
+
+    public void medicineLogUpdate() {
+        medicineLog.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+            @Override
+            public void onSuccess(DocumentSnapshot documentSnapshot) {
+                Map<String, Object> lastTimeTaken = new HashMap<>();
+                lastTimeTaken.put("lastTimeTaken", getCurrentTime());
+                medicineLog.update(lastTimeTaken).addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void unused) {
+                        Toast.makeText(DisplayUserInfo.this, "Sucesfully Updated :)", Toast.LENGTH_SHORT).show();
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Toast.makeText(DisplayUserInfo.this, "Could Not Update Database", Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
+        });
     }
 }

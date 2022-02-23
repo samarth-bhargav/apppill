@@ -71,7 +71,6 @@ public class LoginUser extends AppCompatActivity implements View.OnClickListener
                 break;
         }
     }
-    //idk whatever shit needs to go here to make it like work and shit
     public void loginUser(){
         progressBar.setVisibility(View.VISIBLE);
         String email = editEmail.getText().toString().trim();

@@ -110,17 +110,10 @@ public class RegisterUser extends AppCompatActivity implements View.OnClickListe
                             Map<String, Object> user = new HashMap<>();
                             user.put("Email", email);
                             user.put("fullName", fullName);
-                            db.collection("users")
-                                    .add(user)
-                                    .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-                                        @Override
-                                        public void onSuccess(DocumentReference documentReference) {
-                                            tts.speak("User has been registered", TextToSpeech.QUEUE_FLUSH, null);
-                                            Toast.makeText(RegisterUser.this, "User has been registered!", Toast.LENGTH_SHORT).show();
-                                            progressBar.setVisibility(View.GONE);
-                                            startActivity(new Intent(RegisterUser.this, MainActivity.class));
-                                        }
-                                    });
+                            String uid = task.getResult().getUser().getUid();
+                            db.collection("users").document(uid).set(user);
+                            Toast.makeText(RegisterUser.this, "User Registered Successfully", Toast.LENGTH_SHORT).show();
+                            startActivity(new Intent(RegisterUser.this, MainActivity.class));
                         }
                         else{
                             tts.speak("Failed to Register", TextToSpeech.QUEUE_FLUSH, null);
