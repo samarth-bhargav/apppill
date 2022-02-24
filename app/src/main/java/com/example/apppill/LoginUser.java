@@ -101,7 +101,7 @@ public class LoginUser extends AppCompatActivity implements View.OnClickListener
                         }
                     }
                 });
-        }
+    }
     public void onPause(){
         if (tts != null){
             tts.stop();

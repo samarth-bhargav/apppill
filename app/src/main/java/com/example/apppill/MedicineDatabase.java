@@ -35,7 +35,12 @@ public class MedicineDatabase {
         }
     }
     public boolean isMedicine(String m){
-        return Medicines.contains(m);
+        for (String i : AutoCorrect.correct(m)){
+            if (Medicines.contains(i.toLowerCase(Locale.ROOT))){
+                return true;
+            }
+        }
+        return false;
     }
     public String getMedicine(Text resultText){
         String res = null;

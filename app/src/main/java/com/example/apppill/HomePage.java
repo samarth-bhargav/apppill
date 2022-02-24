@@ -102,6 +102,7 @@ public class HomePage extends AppCompatActivity implements View.OnClickListener{
                                         @Override
                                         public void onSuccess(Text text) {
                                             resultText = text;
+                                            tts.speak("The image has been processed", TextToSpeech.QUEUE_FLUSH, null);
                                             Toast.makeText(HomePage.this, "Processed Image :D", Toast.LENGTH_SHORT).show();
                                         }
                                     });
@@ -127,10 +128,12 @@ public class HomePage extends AppCompatActivity implements View.OnClickListener{
                         startActivity(displayInfo);
                     }
                     else{
+                        tts.speak("Please take a more proper image", TextToSpeech.QUEUE_FLUSH, null);
                         Toast.makeText(HomePage.this, "Please take a more proper image", Toast.LENGTH_SHORT).show();
                     }
                 }
                 else{
+                    tts.speak("Please take an image", TextToSpeech.QUEUE_FLUSH, null);
                     Toast.makeText(HomePage.this, "Please take an image", Toast.LENGTH_SHORT).show();
                 }
                 break;

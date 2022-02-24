@@ -112,6 +112,7 @@ public class RegisterUser extends AppCompatActivity implements View.OnClickListe
                             user.put("fullName", fullName);
                             String uid = task.getResult().getUser().getUid();
                             db.collection("users").document(uid).set(user);
+                            tts.speak("User Registered Successfully", TextToSpeech.QUEUE_FLUSH, null);
                             Toast.makeText(RegisterUser.this, "User Registered Successfully", Toast.LENGTH_SHORT).show();
                             startActivity(new Intent(RegisterUser.this, MainActivity.class));
                         }

@@ -114,13 +114,17 @@ public class DisplayUserInfo extends AppCompatActivity implements View.OnClickLi
                 .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                     @Override
                     public void onSuccess(DocumentSnapshot documentSnapshot) {
-                        if (documentSnapshot.exists()) {
+                        if (documentSnapshot.exists()){
                             //user has taken medication before!
                             displayLastTimeTaken.setText("Last Time Taken: " + documentSnapshot.get("lastTimeTaken").toString());
-                        } else {
+//                            tts.speak("Last Time Taken: " + documentSnapshot.get("lastTimeTaken").toString(), TextToSpeech.QUEUE_FLUSH, null);
+                            medicineLog.update("lastTimeTaken", getCurrentTime());
+                        }
+                        else{
+//                            tts.speak("This is your first time taking this medicine", TextToSpeech.QUEUE_FLUSH, null);
                             displayLastTimeTaken.setText("First Time Taking Pill");
                             Map<String, Object> lastTimeTaken = new HashMap<>();
-                            lastTimeTaken.put("lastTimeTaken", "First Time Taking Pill");
+                            lastTimeTaken.put("lastTimeTaken", getCurrentTime());
                             medicineLog.set(lastTimeTaken);
                         }
                     }
@@ -128,6 +132,7 @@ public class DisplayUserInfo extends AppCompatActivity implements View.OnClickLi
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
+//                        tts.speak("Could not find Document", TextToSpeech.QUEUE_FLUSH, null);
                         Toast.makeText(DisplayUserInfo.this, "Could not find Document", Toast.LENGTH_SHORT).show();
                     }
                 });
@@ -142,11 +147,13 @@ public class DisplayUserInfo extends AppCompatActivity implements View.OnClickLi
                 medicineLog.update(lastTimeTaken).addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void unused) {
-                        Toast.makeText(DisplayUserInfo.this, "Sucesfully Updated :)", Toast.LENGTH_SHORT).show();
+                        tts.speak("Successfully Updated", TextToSpeech.QUEUE_FLUSH, null);
+                        Toast.makeText(DisplayUserInfo.this, "Successfully Updated :)", Toast.LENGTH_SHORT).show();
                     }
                 }).addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
+                        tts.speak("Sorry, we couldn't Update the Database", TextToSpeech.QUEUE_FLUSH, null);
                         Toast.makeText(DisplayUserInfo.this, "Could Not Update Database", Toast.LENGTH_SHORT).show();
                     }
                 });
