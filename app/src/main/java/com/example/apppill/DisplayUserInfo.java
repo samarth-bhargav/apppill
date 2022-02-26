@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.speech.tts.TextToSpeech;
 import android.view.View;
 import android.widget.Button;
@@ -25,6 +26,7 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 public class DisplayUserInfo extends AppCompatActivity implements View.OnClickListener {
@@ -36,6 +38,7 @@ public class DisplayUserInfo extends AppCompatActivity implements View.OnClickLi
     private String medicineText;
     public String medicine;
     public String dosage;
+    public String lastTimeTaken;
     private MedicineDatabase medicineDatabase;
     private TextToSpeech tts;
     DocumentReference medicineLog;
@@ -54,6 +57,8 @@ public class DisplayUserInfo extends AppCompatActivity implements View.OnClickLi
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+
 
         yesButton = findViewById(R.id.UserInfoYes);
         yesButton.setOnClickListener(this);
@@ -81,6 +86,21 @@ public class DisplayUserInfo extends AppCompatActivity implements View.OnClickLi
                 .document(currentUser.getUid())
                 .collection("Medicines");
         displayLastTimeTaken();
+        SystemClock.sleep(1000);
+        tts = new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener() {
+            @Override
+            public void onInit(int i) {
+                if (i != TextToSpeech.ERROR){
+                    tts.setLanguage(Locale.UK);
+                    speak("Your medicine is " + medicine);
+                    while (tts.isSpeaking()){}
+                    speak("Your Dosage Is " + dosage);
+                    while (tts.isSpeaking()){}
+                    speak("The Last Time You Took " + medicine + " is " + lastTimeTaken);
+
+                }
+            }
+        });
 
         displayLogo = findViewById(R.id.UserInfoLogo);
         displayLogo.setOnClickListener(this);
@@ -93,10 +113,13 @@ public class DisplayUserInfo extends AppCompatActivity implements View.OnClickLi
                 startActivity(new Intent(DisplayUserInfo.this, MainActivity.class));
                 break;
             case R.id.UserInfoYes:
+                speak("You took " + medicine);
+                while (tts.isSpeaking()){}
                 medicineLogUpdate();
                 startActivity(new Intent(DisplayUserInfo.this, HomePage.class));
                 break;
             case R.id.UserInfoNo:
+                speak("You did not take " + medicine);
                 Toast.makeText(DisplayUserInfo.this, "You did not take " + medicine, Toast.LENGTH_SHORT).show();
                 startActivity(new Intent(DisplayUserInfo.this, HomePage.class));
                 break;
@@ -116,16 +139,20 @@ public class DisplayUserInfo extends AppCompatActivity implements View.OnClickLi
                     public void onSuccess(DocumentSnapshot documentSnapshot) {
                         if (documentSnapshot.exists()){
                             //user has taken medication before!
-                            displayLastTimeTaken.setText("Last Time Taken: " + documentSnapshot.get("lastTimeTaken").toString());
+                            Object temp = documentSnapshot.get("lastTimeTaken");
+                            if (temp == null){
+                                lastTimeTaken = "what";
+                            }
+                            else{
+                                lastTimeTaken = temp.toString();
+                            }
+                            displayLastTimeTaken.setText("Last Time Taken: " + lastTimeTaken);
 //                            tts.speak("Last Time Taken: " + documentSnapshot.get("lastTimeTaken").toString(), TextToSpeech.QUEUE_FLUSH, null);
-                            medicineLog.update("lastTimeTaken", getCurrentTime());
                         }
                         else{
 //                            tts.speak("This is your first time taking this medicine", TextToSpeech.QUEUE_FLUSH, null);
+                            lastTimeTaken = "First Time Taking Pill";
                             displayLastTimeTaken.setText("First Time Taking Pill");
-                            Map<String, Object> lastTimeTaken = new HashMap<>();
-                            lastTimeTaken.put("lastTimeTaken", getCurrentTime());
-                            medicineLog.set(lastTimeTaken);
                         }
                     }
                 })
@@ -144,20 +171,18 @@ public class DisplayUserInfo extends AppCompatActivity implements View.OnClickLi
             public void onSuccess(DocumentSnapshot documentSnapshot) {
                 Map<String, Object> lastTimeTaken = new HashMap<>();
                 lastTimeTaken.put("lastTimeTaken", getCurrentTime());
-                medicineLog.update(lastTimeTaken).addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void unused) {
-                        tts.speak("Successfully Updated", TextToSpeech.QUEUE_FLUSH, null);
-                        Toast.makeText(DisplayUserInfo.this, "Successfully Updated :)", Toast.LENGTH_SHORT).show();
-                    }
-                }).addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        tts.speak("Sorry, we couldn't Update the Database", TextToSpeech.QUEUE_FLUSH, null);
-                        Toast.makeText(DisplayUserInfo.this, "Could Not Update Database", Toast.LENGTH_SHORT).show();
-                    }
-                });
+                medicineLog.update(lastTimeTaken);
             }
         });
+    }
+    public void speak(String s){
+        tts.speak(s, TextToSpeech.QUEUE_FLUSH, null, this.hashCode()+"");
+    }
+    public void onPause(){
+        if (tts != null){
+            //tts.stop();
+            tts.shutdown();
+        }
+        super.onPause();
     }
 }

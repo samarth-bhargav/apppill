@@ -13,7 +13,7 @@
         android:layout_width="240dp"
         android:layout_height="100dp"
         android:layout_marginTop="66dp"
-        android:text="AppPill"
+        android:text="App-Pill"
         android:textAlignment="center"
         android:textColor="#E91E63"
         android:textSize="48sp"

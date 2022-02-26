@@ -43,7 +43,7 @@ public class LoginUser extends AppCompatActivity implements View.OnClickListener
             public void onInit(int i) {
                 if (i != TextToSpeech.ERROR){
                     tts.setLanguage(Locale.UK);
-                    tts.speak("Please Login", TextToSpeech.QUEUE_FLUSH, null);
+                    speak("Please Login");
                 }
             }
         });
@@ -77,12 +77,16 @@ public class LoginUser extends AppCompatActivity implements View.OnClickListener
         String password = editPassword.getText().toString().trim();
         if(email.length() == 0){
             editEmail.setError("Please enter an email");
+            speak("Please enter an email");
             editEmail.requestFocus();
+            progressBar.setVisibility(View.GONE);
             return;
         }
         if(!Patterns.EMAIL_ADDRESS.matcher(email).matches()){
             editEmail.setError("Please enter a valid email");
+            speak("Please enter a valid email");
             editEmail.requestFocus();
+            progressBar.setVisibility(View.GONE);
             return;
         }
         progressBar.setVisibility(View.VISIBLE);
@@ -96,11 +100,15 @@ public class LoginUser extends AppCompatActivity implements View.OnClickListener
                             startActivity(new Intent(LoginUser.this, HomePage.class));
                         }
                         else{
-                            Toast.makeText(LoginUser.this, "Something Went Wrong :(", Toast.LENGTH_LONG).show();
+                            Toast.makeText(LoginUser.this, "Please check your credentials", Toast.LENGTH_LONG).show();
+                            speak("Please check your credentials");
                             progressBar.setVisibility(View.GONE);
                         }
                     }
                 });
+    }
+    public void speak(String s){
+        tts.speak(s, TextToSpeech.QUEUE_FLUSH, null, this.hashCode()+"");
     }
     public void onPause(){
         if (tts != null){

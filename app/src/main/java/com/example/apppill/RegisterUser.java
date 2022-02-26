@@ -48,7 +48,7 @@ public class RegisterUser extends AppCompatActivity implements View.OnClickListe
             public void onInit(int i) {
                 if (i != TextToSpeech.ERROR){
                     tts.setLanguage(Locale.UK);
-                    tts.speak("Please Register", TextToSpeech.QUEUE_FLUSH, null);
+                    speak("Please Register");
                 }
             }
         });
@@ -84,19 +84,19 @@ public class RegisterUser extends AppCompatActivity implements View.OnClickListe
 
         if (fullName.isEmpty()){
             editFullName.setError("Full Name is Required");
-            tts.speak("Full Name is Required", TextToSpeech.QUEUE_FLUSH, null);
+            speak("Full Name is required");
             editFullName.requestFocus();
             return;
         }
         if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()){
-            editEmail.setError("Email is Required");
-            tts.speak("Email is Required", TextToSpeech.QUEUE_FLUSH, null);
+            editEmail.setError("Valid Email is Required");
+            speak("Valid Email is required");
             editEmail.requestFocus();
             return;
         }
         if (password.length() < 6){
             editPassword.setError("Password must be at least 6 characters");
-            tts.speak("Password needs to be 6 characters", TextToSpeech.QUEUE_FLUSH, null);
+            speak("Password needs to be at least 6 characters long");
             editPassword.requestFocus();
             return;
         }
@@ -112,17 +112,20 @@ public class RegisterUser extends AppCompatActivity implements View.OnClickListe
                             user.put("fullName", fullName);
                             String uid = task.getResult().getUser().getUid();
                             db.collection("users").document(uid).set(user);
-                            tts.speak("User Registered Successfully", TextToSpeech.QUEUE_FLUSH, null);
+                            speak("User Registered Successfully");
                             Toast.makeText(RegisterUser.this, "User Registered Successfully", Toast.LENGTH_SHORT).show();
                             startActivity(new Intent(RegisterUser.this, MainActivity.class));
                         }
                         else{
-                            tts.speak("Failed to Register", TextToSpeech.QUEUE_FLUSH, null);
+                            speak("Failed to Register");
                             Toast.makeText(RegisterUser.this, "Failed To Register", Toast.LENGTH_LONG).show();
                             progressBar.setVisibility(View.GONE);
                         }
                     }
                 });
+    }
+    public void speak(String s){
+        tts.speak(s, TextToSpeech.QUEUE_FLUSH, null, this.hashCode()+"");
     }
     public void onPause(){
         if (tts != null){

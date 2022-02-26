@@ -27,7 +27,7 @@
         android:layout_height="100dp"
         android:layout_marginTop="66dp"
         android:layout_marginBottom="182dp"
-        android:text="AppPill"
+        android:text="App-Pill"
         android:textAlignment="center"
         android:textAppearance="@style/TextAppearance.AppCompat.Display1"
         android:textColor="#E91E63"

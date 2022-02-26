@@ -48,7 +48,11 @@ public class MedicineDatabase {
             for (Text.Line line: block.getLines()){
                 for (Text.Element word : line.getElements()){
                     if (isMedicine(word.getText().toLowerCase(Locale.ROOT))){
-                        res = word.getText();
+                        for (String i : AutoCorrect.correct(word.getText())){
+                            if (Medicines.contains(i.toLowerCase(Locale.ROOT))){
+                                res = i.toLowerCase(Locale.ROOT);
+                            }
+                        }
                     }
                 }
             }
@@ -62,7 +66,11 @@ public class MedicineDatabase {
             String[] words = str.split(" ");
             for (String wrd : words){
                 if (isMedicine(wrd.toLowerCase(Locale.ROOT))){
-                    res = wrd;
+                    for (String i : AutoCorrect.correct(wrd)){
+                        if (Medicines.contains(i.toLowerCase(Locale.ROOT))){
+                            res = i.toLowerCase(Locale.ROOT);
+                        }
+                    }
                 }
             }
         }

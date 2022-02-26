@@ -68,7 +68,7 @@ public class HomePage extends AppCompatActivity implements View.OnClickListener{
             public void onInit(int i) {
                 if (i != TextToSpeech.ERROR){
                     tts.setLanguage(Locale.UK);
-                    tts.speak("Welcome, Please take a Picture by pressing the camera", TextToSpeech.QUEUE_FLUSH, null);
+                    speak("Welcome, please take a picture by pressing the camera icon");
                 }
             }
         });
@@ -101,9 +101,23 @@ public class HomePage extends AppCompatActivity implements View.OnClickListener{
                                     .addOnSuccessListener(new OnSuccessListener<Text>() {
                                         @Override
                                         public void onSuccess(Text text) {
-                                            resultText = text;
-                                            tts.speak("The image has been processed", TextToSpeech.QUEUE_FLUSH, null);
-                                            Toast.makeText(HomePage.this, "Processed Image :D", Toast.LENGTH_SHORT).show();
+                                            try{
+                                                resultText = text;
+                                                tts = new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener() {
+                                                    @Override
+                                                    public void onInit(int i) {
+                                                        if (i != TextToSpeech.ERROR){
+                                                            tts.setLanguage(Locale.UK);
+                                                            speak("Image has been processed");
+                                                        }
+                                                    }
+                                                });
+                                            }
+                                            catch (Exception e){
+                                                e.printStackTrace();
+                                                Toast.makeText(HomePage.this, "wieufwieuairuaweiruqwer", Toast.LENGTH_SHORT).show();
+                                            }
+                                            Toast.makeText(HomePage.this, "Processed Image", Toast.LENGTH_SHORT).show();
                                         }
                                     });
 //                    Toast.makeText(HomePage.this, "So it processed the image", Toast.LENGTH_SHORT).show();
@@ -122,18 +136,18 @@ public class HomePage extends AppCompatActivity implements View.OnClickListener{
                 if (resultText != null){
                     description.setText(resultText.getText());
                     if (medicineDatabase.getMedicine(resultText) != null){
-                        Toast.makeText(HomePage.this, "Medicine: " + medicineDatabase.getMedicine(resultText), Toast.LENGTH_SHORT).show();
+//                        Toast.makeText(HomePage.this, "Medicine: " + medicineDatabase.getMedicine(resultText), Toast.LENGTH_SHORT).show();
                         Intent displayInfo = new Intent(HomePage.this, DisplayUserInfo.class);
                         displayInfo.putExtra("Text", resultText.getText());
                         startActivity(displayInfo);
                     }
                     else{
-                        tts.speak("Please take a more proper image", TextToSpeech.QUEUE_FLUSH, null);
+                        speak("Please take a more proper image");
                         Toast.makeText(HomePage.this, "Please take a more proper image", Toast.LENGTH_SHORT).show();
                     }
                 }
                 else{
-                    tts.speak("Please take an image", TextToSpeech.QUEUE_FLUSH, null);
+                    speak("Please take an image");
                     Toast.makeText(HomePage.this, "Please take an image", Toast.LENGTH_SHORT).show();
                 }
                 break;
@@ -186,6 +200,7 @@ public class HomePage extends AppCompatActivity implements View.OnClickListener{
                 this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
         if (permissionCheck != PackageManager.PERMISSION_GRANTED) {
             Log.i(TAG, "Permission not granted.");
+            speak("You have not granted camera permission");
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 225);
         } else {
             Log.i(TAG, "You already have permission!");
@@ -193,6 +208,9 @@ public class HomePage extends AppCompatActivity implements View.OnClickListener{
         }
 
         return false;
+    }
+    public void speak(String s){
+        tts.speak(s, TextToSpeech.QUEUE_FLUSH, null, HomePage.this.hashCode()+"");
     }
     public void onPause(){
         if (tts != null){

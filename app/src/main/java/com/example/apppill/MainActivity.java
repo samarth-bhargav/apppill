@@ -31,7 +31,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             public void onInit(int i) {
                 if (i != TextToSpeech.ERROR){
                     tts.setLanguage(Locale.UK);
-                    tts.speak("App Pill, Register or Login", TextToSpeech.QUEUE_FLUSH, null);
+                    speak("App Pill, Register or Login");
                 }
             }
         });
@@ -59,5 +59,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             tts.shutdown();
         }
         super.onPause();
+    }
+    public void speak(String s){
+        tts.speak(s, TextToSpeech.QUEUE_FLUSH, null, this.hashCode()+"");
     }
 }

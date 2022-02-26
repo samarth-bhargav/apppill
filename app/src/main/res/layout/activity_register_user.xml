@@ -14,7 +14,7 @@
         android:layout_marginTop="66dp"
         android:layout_marginBottom="208dp"
         android:fontFamily="monospace"
-        android:text="AppPill"
+        android:text="App-Pill"
         android:textAlignment="center"
         android:textColor="#E91E63"
         android:textSize="48sp"
