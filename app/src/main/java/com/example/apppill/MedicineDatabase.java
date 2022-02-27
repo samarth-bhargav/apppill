@@ -19,7 +19,7 @@ import java.util.TreeSet;
 
 public class MedicineDatabase {
     public TreeSet<String> Medicines = new TreeSet<>();
-    public String[] instructions = {"take", "ake"};
+    public String[] instructions = {"lake", "|ake", "take", "ake"};
     public String[] dates = {"hour", "day", "month", "week", "year", "hourly", "daily", "monthly"};
     public void init(Context context) throws IOException {
         Context mContext = context;

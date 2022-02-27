@@ -1,213 +1,52 @@
 package com.example.apppill;
 
-import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
-
-import androidx.activity.result.ActivityResult;
-import androidx.activity.result.ActivityResultCallback;
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 
-import android.Manifest;
-import android.content.ContentValues;
 import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.database.Cursor;
-import android.graphics.Bitmap;
-import android.graphics.Matrix;
-import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
-import android.provider.MediaStore;
 import android.speech.tts.TextToSpeech;
-import android.util.Log;
 import android.view.View;
-import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
-import com.google.mlkit.vision.common.InputImage;
-import com.google.mlkit.vision.text.Text;
-import com.google.mlkit.vision.text.TextRecognition;
-import com.google.mlkit.vision.text.TextRecognizer;
-import com.google.mlkit.vision.text.latin.TextRecognizerOptions;
-
-import java.io.IOException;
 import java.util.Locale;
-
 
 public class HomePage extends AppCompatActivity implements View.OnClickListener{
 
-    private Button dictate;
-    private TextView banner, description;
-    private Uri imageUri;
-    private Text resultText;
-    private MedicineDatabase medicineDatabase;
-    private ImageView display;
-    private ActivityResultLauncher launcher;
-    public static final int MEDIA_TYPE_IMAGE = 1;
-    public static final int MEDIA_TYPE_VIDEO = 2;
+    private TextView homePageLogo, searchButton, scanButton;
     private TextToSpeech tts;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home_page);
-        medicineDatabase = new MedicineDatabase();
-        try {
-            medicineDatabase.init(HomePage.this);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
         tts = new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener() {
             @Override
             public void onInit(int i) {
                 if (i != TextToSpeech.ERROR){
-                    tts.setLanguage(Locale.UK);
-                    speak("Welcome, please take a picture by pressing the camera icon");
+                    tts.setLanguage(Locale.US);
+                    speak("Welcome! Please scan or search");
                 }
             }
         });
-        description = findViewById(R.id.homePageText);
+        homePageLogo = findViewById(R.id.homePageLogo);
 
-        display = findViewById(R.id.homePageImage);
-        display.setOnClickListener(this);
+        searchButton = findViewById(R.id.homePageSearch);
+        searchButton.setOnClickListener(this);
 
-        dictate = findViewById(R.id.homePageDictate);
-        dictate.setOnClickListener(this);
-
-        launcher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
-            @Override
-            public void onActivityResult(ActivityResult result) {
-//                Toast.makeText(HomePage.this, "Hihi", Toast.LENGTH_SHORT).show();
-                if (result.getResultCode() == RESULT_OK && result.getData() != null){
-                    Bitmap thumbnail = null;
-                    try {
-                        thumbnail = MediaStore.Images.Media.getBitmap(getContentResolver(), imageUri);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                    thumbnail = rotateBitmap(thumbnail, 90);
-                    display.setImageBitmap(thumbnail);
-                    String path = getRealPathFromURI(imageUri);
-                    TextRecognizer recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS);
-                    InputImage image = InputImage.fromBitmap(thumbnail, 0);
-                    Task<Text> processedImage =
-                            recognizer.process(image)
-                                    .addOnSuccessListener(new OnSuccessListener<Text>() {
-                                        @Override
-                                        public void onSuccess(Text text) {
-                                            try{
-                                                resultText = text;
-                                                tts = new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener() {
-                                                    @Override
-                                                    public void onInit(int i) {
-                                                        if (i != TextToSpeech.ERROR){
-                                                            tts.setLanguage(Locale.UK);
-                                                            speak("Image has been processed");
-                                                        }
-                                                    }
-                                                });
-                                            }
-                                            catch (Exception e){
-                                                e.printStackTrace();
-                                                Toast.makeText(HomePage.this, "wieufwieuairuaweiruqwer", Toast.LENGTH_SHORT).show();
-                                            }
-                                            Toast.makeText(HomePage.this, "Processed Image", Toast.LENGTH_SHORT).show();
-                                        }
-                                    });
-//                    Toast.makeText(HomePage.this, "So it processed the image", Toast.LENGTH_SHORT).show();
-                }
-            }
-        });
+        scanButton = findViewById(R.id.homePageScan);
+        scanButton.setOnClickListener(this);
     }
 
     @Override
     public void onClick(View view) {
         switch (view.getId()){
-            case R.id.homePageImage:
-                takePictureAndDisplay();
+            case R.id.homePageScan:
+                startActivity(new Intent(HomePage.this, CameraHomePage.class));
                 break;
-            case R.id.homePageDictate:
-                if (resultText != null){
-                    description.setText(resultText.getText());
-                    if (medicineDatabase.getMedicine(resultText) != null){
-//                        Toast.makeText(HomePage.this, "Medicine: " + medicineDatabase.getMedicine(resultText), Toast.LENGTH_SHORT).show();
-                        Intent displayInfo = new Intent(HomePage.this, DisplayUserInfo.class);
-                        displayInfo.putExtra("Text", resultText.getText());
-                        startActivity(displayInfo);
-                    }
-                    else{
-                        speak("Please take a more proper image");
-                        Toast.makeText(HomePage.this, "Please take a more proper image", Toast.LENGTH_SHORT).show();
-                    }
-                }
-                else{
-                    speak("Please take an image");
-                    Toast.makeText(HomePage.this, "Please take an image", Toast.LENGTH_SHORT).show();
-                }
-                break;
-            case R.id.homePageLogo:
-                startActivity(new Intent(HomePage.this, MainActivity.class));
+            case R.id.homePageSearch:
+                startActivity(new Intent(HomePage.this, SearchHomePage.class));
                 break;
         }
-    }
-    static final int REQUEST_IMAGE_CAPTURE = 1;
-
-    private void takePictureAndDisplay(){
-        if (ContextCompat.checkSelfPermission(HomePage.this,
-                Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED){
-            ActivityCompat.requestPermissions(this, new String[]{
-                    Manifest.permission.CAMERA,
-                    Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                    Manifest.permission.READ_EXTERNAL_STORAGE}, 225);
-        }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M){
-            //Check permissions for Android 6.0+
-            if(!checkExternalStoragePermission()){
-                return;
-            }
-        }
-        ContentValues values = new ContentValues();
-        values.put(MediaStore.Images.Media.TITLE, "MyPicture");
-        values.put(MediaStore.Images.Media.DESCRIPTION, "Photo taken on " + System.currentTimeMillis());
-        imageUri = getContentResolver().insert(
-                MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
-        Intent takePicture = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        takePicture.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
-        launcher.launch(takePicture);
-    }
-    private static Bitmap rotateBitmap(Bitmap img, int degree){
-        Matrix matrix = new Matrix();
-        matrix.postRotate(degree);
-        Bitmap rotatedImage = Bitmap.createBitmap(img, 0, 0, img.getWidth(), img.getHeight(), matrix, true);
-        img.recycle();
-        return rotatedImage;
-    }
-    public String getRealPathFromURI(Uri contentUri) {
-        String[] proj = { MediaStore.Images.Media.DATA };
-        Cursor cursor = managedQuery(contentUri, proj, null, null, null);
-        int column_index = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
-        cursor.moveToFirst();
-        return cursor.getString(column_index);
-    }
-    private boolean checkExternalStoragePermission() {
-        int permissionCheck = ContextCompat.checkSelfPermission(
-                this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
-        if (permissionCheck != PackageManager.PERMISSION_GRANTED) {
-            Log.i(TAG, "Permission not granted.");
-            speak("You have not granted camera permission");
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 225);
-        } else {
-            Log.i(TAG, "You already have permission!");
-            return true;
-        }
-
-        return false;
     }
     public void speak(String s){
         tts.speak(s, TextToSpeech.QUEUE_FLUSH, null, HomePage.this.hashCode()+"");
@@ -219,11 +58,4 @@ public class HomePage extends AppCompatActivity implements View.OnClickListener{
         }
         super.onPause();
     }
-//    private static File getOutputMediaFile(){
-//        String fileName = "temp";
-//        String path = Environment.getExternalStorageDirectory().getAbsolutePath()+"/Medicine";
-//        File temp = new File(path,fileName+".jpg");
-//
-//        return temp;
-//    }
 }

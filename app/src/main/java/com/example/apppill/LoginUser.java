@@ -36,17 +36,18 @@ public class LoginUser extends AppCompatActivity implements View.OnClickListener
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login_main);
         //^obv not for login idk j do the gui it's 11.37 at night oke
-        mAuth = FirebaseAuth.getInstance();
 
         tts = new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener() {
             @Override
             public void onInit(int i) {
                 if (i != TextToSpeech.ERROR){
-                    tts.setLanguage(Locale.UK);
+                    tts.setLanguage(Locale.US);
                     speak("Please Login");
                 }
             }
         });
+
+        mAuth = FirebaseAuth.getInstance();
 
         banner = this.findViewById(R.id.loginLogo);
         banner.setOnClickListener(this);

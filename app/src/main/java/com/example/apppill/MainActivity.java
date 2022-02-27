@@ -30,7 +30,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             @Override
             public void onInit(int i) {
                 if (i != TextToSpeech.ERROR){
-                    tts.setLanguage(Locale.UK);
+                    tts.setLanguage(Locale.US);
                     speak("App Pill, Register or Login");
                 }
             }

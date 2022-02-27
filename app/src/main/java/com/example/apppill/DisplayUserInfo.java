@@ -12,8 +12,10 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
@@ -86,18 +88,26 @@ public class DisplayUserInfo extends AppCompatActivity implements View.OnClickLi
                 .document(currentUser.getUid())
                 .collection("Medicines");
         displayLastTimeTaken();
-        SystemClock.sleep(1000);
+        SystemClock.sleep(2000);
         tts = new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener() {
             @Override
             public void onInit(int i) {
                 if (i != TextToSpeech.ERROR){
-                    tts.setLanguage(Locale.UK);
-                    speak("Your medicine is " + medicine);
-                    while (tts.isSpeaking()){}
-                    speak("Your Dosage Is " + dosage);
-                    while (tts.isSpeaking()){}
-                    speak("The Last Time You Took " + medicine + " is " + lastTimeTaken);
-
+                    tts.setLanguage(Locale.US);
+                    if (lastTimeTaken.equals("First Time Taking Pill")){
+                        speak("Your medicine is " + medicine);
+                        while (tts.isSpeaking()){}
+                        speak("Your Dosage Is " + dosage);
+                        while (tts.isSpeaking()){}
+                        speak("This is the first time you are taking " + medicine);
+                    }
+                    else{
+                        speak("Your medicine is " + medicine);
+                        while (tts.isSpeaking()){}
+                        speak("Your Dosage Is " + dosage);
+                        while (tts.isSpeaking()){}
+                        speak("The Last Time You Took " + medicine + " is " + lastTimeTaken);
+                    }
                 }
             }
         });
@@ -113,15 +123,16 @@ public class DisplayUserInfo extends AppCompatActivity implements View.OnClickLi
                 startActivity(new Intent(DisplayUserInfo.this, MainActivity.class));
                 break;
             case R.id.UserInfoYes:
+                medicineLogUpdate();
                 speak("You took " + medicine);
                 while (tts.isSpeaking()){}
-                medicineLogUpdate();
-                startActivity(new Intent(DisplayUserInfo.this, HomePage.class));
+                startActivity(new Intent(DisplayUserInfo.this, CameraHomePage.class));
                 break;
             case R.id.UserInfoNo:
                 speak("You did not take " + medicine);
+                while (tts.isSpeaking()){}
                 Toast.makeText(DisplayUserInfo.this, "You did not take " + medicine, Toast.LENGTH_SHORT).show();
-                startActivity(new Intent(DisplayUserInfo.this, HomePage.class));
+                startActivity(new Intent(DisplayUserInfo.this, CameraHomePage.class));
                 break;
         }
     }
@@ -165,18 +176,27 @@ public class DisplayUserInfo extends AppCompatActivity implements View.OnClickLi
                 });
     }
 
+
+
     public void medicineLogUpdate() {
-        medicineLog.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+        medicineLog.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
-            public void onSuccess(DocumentSnapshot documentSnapshot) {
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                DocumentSnapshot doc = task.getResult();
                 Map<String, Object> lastTimeTaken = new HashMap<>();
                 lastTimeTaken.put("lastTimeTaken", getCurrentTime());
-                medicineLog.update(lastTimeTaken);
+                if (doc.exists()){
+                    medicineLog.update(lastTimeTaken);
+                }
+                else{
+                    //first time taking pill
+                    medicineLog.set(lastTimeTaken);
+                }
             }
         });
     }
     public void speak(String s){
-        tts.speak(s, TextToSpeech.QUEUE_FLUSH, null, this.hashCode()+"");
+        tts.speak(s, TextToSpeech.QUEUE_ADD, null, this.hashCode()+"");
     }
     public void onPause(){
         if (tts != null){

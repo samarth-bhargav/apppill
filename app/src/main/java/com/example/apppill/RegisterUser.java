@@ -47,7 +47,7 @@ public class RegisterUser extends AppCompatActivity implements View.OnClickListe
             @Override
             public void onInit(int i) {
                 if (i != TextToSpeech.ERROR){
-                    tts.setLanguage(Locale.UK);
+                    tts.setLanguage(Locale.US);
                     speak("Please Register");
                 }
             }

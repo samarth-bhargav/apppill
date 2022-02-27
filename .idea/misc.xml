@@ -3,11 +3,19 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/SharkTank/apppill/apppill/app/src/main/res/drawable/app-pill logo_background.xml" value="0.4695" />
+        <entry key="..\:/SharkTank/apppill/apppill/app/src/main/res/drawable/ic_launcher_background.xml" value="0.4695" />
+        <entry key="..\:/SharkTank/apppill/apppill/app/src/main/res/layout/activity_camera_home_page.xml" value="0.264" />
         <entry key="..\:/SharkTank/apppill/apppill/app/src/main/res/layout/activity_display_user_info.xml" value="0.5" />
         <entry key="..\:/SharkTank/apppill/apppill/app/src/main/res/layout/activity_home_page.xml" value="0.264" />
+        <entry key="..\:/SharkTank/apppill/apppill/app/src/main/res/layout/activity_home_page2.xml" value="0.25416666666666665" />
         <entry key="..\:/SharkTank/apppill/apppill/app/src/main/res/layout/activity_login_main.xml" value="0.264" />
         <entry key="..\:/SharkTank/apppill/apppill/app/src/main/res/layout/activity_main.xml" value="0.22826086956521738" />
         <entry key="..\:/SharkTank/apppill/apppill/app/src/main/res/layout/activity_register_user.xml" value="0.25416666666666665" />
+        <entry key="..\:/SharkTank/apppill/apppill/app/src/main/res/layout/activity_search_home_page.xml" value="0.25416666666666665" />
+        <entry key="..\:/SharkTank/apppill/apppill/app/src/main/res/mipmap-anydpi-v26/app-pill logo.xml" value="0.4695" />
+        <entry key="..\:/SharkTank/apppill/apppill/app/src/main/res/mipmap-anydpi-v26/app-pill-logo.xml" value="0.3275" />
+        <entry key="..\:/SharkTank/apppill/apppill/app/src/main/res/mipmap-anydpi-v26/app_pill_logo.xml" value="0.3275" />
         <entry key="..\:/SharkTank/apppill/apppill/app/src/main/res/xml/provider_paths.xml" value="0.3140625" />
         <entry key="..\:/Users/samar/AndroidStudioProjects/AppPill/app/src/main/res/layout/activity_main.xml" value="0.33" />
         <entry key="..\:/Users/samar/AndroidStudioProjects/AppPill/app/src/main/res/layout/activity_register_user.xml" value="0.44010282776349613" />
