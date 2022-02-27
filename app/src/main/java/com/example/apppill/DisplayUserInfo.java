@@ -200,7 +200,7 @@ public class DisplayUserInfo extends AppCompatActivity implements View.OnClickLi
     }
     public void onPause(){
         if (tts != null){
-            //tts.stop();
+            tts.stop();
             tts.shutdown();
         }
         super.onPause();

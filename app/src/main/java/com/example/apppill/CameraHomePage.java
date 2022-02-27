@@ -74,6 +74,9 @@ public class CameraHomePage extends AppCompatActivity implements View.OnClickLis
         });
         description = findViewById(R.id.cameraHomePageText);
 
+        banner = findViewById(R.id.cameraHomePageLogo);
+        banner.setOnClickListener(this);
+
         display = findViewById(R.id.cameraHomePageImage);
         display.setOnClickListener(this);
 
