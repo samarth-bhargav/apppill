@@ -43,6 +43,7 @@ public class DisplayUserInfo extends AppCompatActivity implements View.OnClickLi
     public String lastTimeTaken;
     private MedicineDatabase medicineDatabase;
     private TextToSpeech tts;
+    private boolean ttsReady = false;
     DocumentReference medicineLog;
     CollectionReference medicines;
 
@@ -51,6 +52,7 @@ public class DisplayUserInfo extends AppCompatActivity implements View.OnClickLi
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_display_user_info);
 
+        setup();
         db = FirebaseFirestore.getInstance();
         medicineDatabase = new MedicineDatabase();
         currentUser = FirebaseAuth.getInstance().getCurrentUser();
@@ -80,38 +82,38 @@ public class DisplayUserInfo extends AppCompatActivity implements View.OnClickLi
         dosage = medicineDatabase.getDosage(medicineText);
         displayMedicine.setText("Medicine: " + medicine);
         displayDosage.setText("Dosage: " + dosage);
+
         medicineLog = db.collection("users")
                 .document(currentUser.getUid())
                 .collection("Medicines")
                 .document(medicine);
-        medicines = db.collection("users")
-                .document(currentUser.getUid())
-                .collection("Medicines");
         displayLastTimeTaken();
-        SystemClock.sleep(2000);
+        SystemClock.sleep(3000);
+        if (lastTimeTaken == null){
+            lastTimeTaken = "error";
+        }
         tts = new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener() {
             @Override
             public void onInit(int i) {
-                if (i != TextToSpeech.ERROR){
+                if (i != TextToSpeech.ERROR) {
                     tts.setLanguage(Locale.US);
-                    if (lastTimeTaken.equals("First Time Taking Pill")){
+                    if (lastTimeTaken.equals("First Time Taking Pill")) {
                         speak("Your medicine is " + medicine);
-                        while (tts.isSpeaking()){}
+//                        while (tts.isSpeaking()) {SystemClock.sleep(500);}
                         speak("Your Dosage Is " + dosage);
-                        while (tts.isSpeaking()){}
+//                        while (tts.isSpeaking()) {SystemClock.sleep(500);}
                         speak("This is the first time you are taking " + medicine);
                     }
-                    else{
+                    else {
                         speak("Your medicine is " + medicine);
-                        while (tts.isSpeaking()){}
+//                        while (tts.isSpeaking()) {SystemClock.sleep(500);}
                         speak("Your Dosage Is " + dosage);
-                        while (tts.isSpeaking()){}
+//                        while (tts.isSpeaking()) {SystemClock.sleep(500);}
                         speak("The Last Time You Took " + medicine + " is " + lastTimeTaken);
                     }
                 }
             }
         });
-
         displayLogo = findViewById(R.id.UserInfoLogo);
         displayLogo.setOnClickListener(this);
     }
@@ -198,11 +200,22 @@ public class DisplayUserInfo extends AppCompatActivity implements View.OnClickLi
     public void speak(String s){
         tts.speak(s, TextToSpeech.QUEUE_ADD, null, this.hashCode()+"");
     }
-    public void onPause(){
-        if (tts != null){
+    @Override
+    public void onStop() {
+        if (tts != null) {
             tts.stop();
+        }
+        super.onStop();
+    }
+
+    @Override
+    public void onDestroy() {
+        if (tts != null) {
             tts.shutdown();
         }
-        super.onPause();
+        super.onDestroy();
+    }
+    public void setup(){
+
     }
 }

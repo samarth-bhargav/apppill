@@ -118,7 +118,7 @@ public class CameraHomePage extends AppCompatActivity implements View.OnClickLis
                                             }
                                             catch (Exception e){
                                                 e.printStackTrace();
-                                                Toast.makeText(CameraHomePage.this, "wieufwieuairuaweiruqwer", Toast.LENGTH_SHORT).show();
+//                                                Toast.makeText(CameraHomePage.this, "wieufwieuairuaweiruqwer", Toast.LENGTH_SHORT).show();
                                             }
                                             Toast.makeText(CameraHomePage.this, "Processed Image", Toast.LENGTH_SHORT).show();
                                         }
