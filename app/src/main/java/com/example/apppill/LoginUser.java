@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
 import android.util.Patterns;
@@ -29,7 +30,10 @@ public class LoginUser extends AppCompatActivity implements View.OnClickListener
     private ProgressBar progressBar;
     private Button login;
     private TextToSpeech tts;
-
+    private final String EMAIL = "email";
+    private final String PASSWORD = "password";
+    public final String SESSION = "session";
+    private final String SHARED_PREFS = "sharedPrefs";
     private FirebaseAuth mAuth;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,15 +41,9 @@ public class LoginUser extends AppCompatActivity implements View.OnClickListener
         setContentView(R.layout.activity_login_main);
         //^obv not for login idk j do the gui it's 11.37 at night oke
 
-        tts = new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener() {
-            @Override
-            public void onInit(int i) {
-                if (i != TextToSpeech.ERROR){
-                    tts.setLanguage(Locale.US);
-                    speak("Please Login");
-                }
-            }
-        });
+
+        progressBar = findViewById(R.id.loginProgressBar);
+        progressBar.setVisibility(View.GONE);
 
         mAuth = FirebaseAuth.getInstance();
 
@@ -57,9 +55,63 @@ public class LoginUser extends AppCompatActivity implements View.OnClickListener
 
         login = findViewById(R.id.loginButton);
         login.setOnClickListener(this);
+        
+        SharedPreferences sharedPreferences = getSharedPreferences(SHARED_PREFS, MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
 
-        progressBar = findViewById(R.id.loginProgressBar);
-        progressBar.setVisibility(View.GONE);
+        if (!sharedPreferences.contains(SESSION)){
+            editor.putBoolean(SESSION, false);
+            editor.putString(EMAIL, null);
+            editor.putString(PASSWORD, null);
+
+            editor.apply();
+        }
+        else{
+            if (sharedPreferences.getBoolean(SESSION, false)){
+                String email = sharedPreferences.getString(EMAIL, "");
+                String password = sharedPreferences.getString(PASSWORD, "");
+                progressBar.setVisibility(View.VISIBLE);
+                mAuth.signInWithEmailAndPassword(email, password)
+                        .addOnCompleteListener(new OnCompleteListener<AuthResult>(){
+                            @Override
+                            public void onComplete(@NonNull Task<AuthResult> login){
+                                if(login.isSuccessful()){
+                                    progressBar.setVisibility(View.GONE);
+                                    SharedPreferences sharedPreferences = getSharedPreferences(SHARED_PREFS , MODE_PRIVATE);
+                                    SharedPreferences.Editor editor = sharedPreferences.edit();
+
+                                    if (!sharedPreferences.getBoolean(SESSION, false)){
+                                        editor.putBoolean(SESSION, true);
+                                        editor.putString(EMAIL, email);
+                                        editor.putString(PASSWORD, password);
+
+                                        editor.apply();
+                                    }
+
+                                    Toast.makeText(LoginUser.this, "Welcome", Toast.LENGTH_LONG).show();
+                                    startActivity(new Intent(LoginUser.this, HomePage.class));
+                                }
+                                else{
+                                    Toast.makeText(LoginUser.this, "Please check your credentials", Toast.LENGTH_LONG).show();
+                                    speak("Please check your credentials");
+                                    progressBar.setVisibility(View.GONE);
+                                }
+                            }
+                        });
+            }
+        }
+        tts = new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener() {
+            @Override
+            public void onInit(int i) {
+                if (i != TextToSpeech.ERROR){
+                    tts.setLanguage(Locale.US);
+                    speak("Please Login");
+                }
+            }
+        });
+
+
+
     }
     @Override
     public void onClick(View view) {
@@ -97,6 +149,17 @@ public class LoginUser extends AppCompatActivity implements View.OnClickListener
                     public void onComplete(@NonNull Task<AuthResult> login){
                         if(login.isSuccessful()){
                             progressBar.setVisibility(View.GONE);
+                            SharedPreferences sharedPreferences = getSharedPreferences(SHARED_PREFS , MODE_PRIVATE);
+                            SharedPreferences.Editor editor = sharedPreferences.edit();
+
+                            if (!sharedPreferences.getBoolean(SESSION, false)){
+                                editor.putBoolean(SESSION, true);
+                                editor.putString(EMAIL, email);
+                                editor.putString(PASSWORD, password);
+
+                                editor.apply();
+                            }
+
                             Toast.makeText(LoginUser.this, "Welcome", Toast.LENGTH_LONG).show();
                             startActivity(new Intent(LoginUser.this, HomePage.class));
                         }

@@ -74,9 +74,6 @@ public class DisplayUserInfo extends AppCompatActivity implements View.OnClickLi
         displayDosage = findViewById(R.id.UserInfoDosage);
         displayLastTimeTaken = findViewById(R.id.UserInfoLastTimeTaken);
 
-        Toast.makeText(DisplayUserInfo.this, currentUser.getUid(), Toast.LENGTH_SHORT).show();
-        Toast.makeText(DisplayUserInfo.this, currentUser.getEmail(), Toast.LENGTH_SHORT).show();
-
         medicineText = getIntent().getExtras().getString("Text");
         medicine = medicineDatabase.getMedicine(medicineText);
         dosage = medicineDatabase.getDosage(medicineText);
@@ -96,7 +93,7 @@ public class DisplayUserInfo extends AppCompatActivity implements View.OnClickLi
             @Override
             public void onInit(int i) {
                 if (i != TextToSpeech.ERROR) {
-                    tts.setLanguage(Locale.US);
+
                     if (lastTimeTaken.equals("First Time Taking Pill")) {
                         speak("Your medicine is " + medicine);
 //                        while (tts.isSpeaking()) {SystemClock.sleep(500);}

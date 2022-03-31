@@ -99,16 +99,16 @@ public class MedicineDatabase {
         for (String str : blocks){
             String[] words = str.split(" ");
             for (String wrd : words){
-                if (add){
+                if (isDate(wrd.toLowerCase(Locale.ROOT))){
+                    res.append(wrd);
+                    add = false;
+                }
+                else if (add){
                     res.append(wrd).append(" ");
                 }
                 else if (isInstruction(wrd.toLowerCase(Locale.ROOT))){
                     res = new StringBuilder(wrd + " ");
                     add = true;
-                }
-                else if (isDate(wrd.toLowerCase(Locale.ROOT))){
-                    res.append(wrd);
-                    add = false;
                 }
             }
         }
