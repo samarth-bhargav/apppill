@@ -62,5 +62,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
     public void speak(String s){
         tts.speak(s, TextToSpeech.QUEUE_FLUSH, null, this.hashCode()+"");
+        //test
     }
 }
