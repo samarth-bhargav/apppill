@@ -37,6 +37,7 @@ import com.google.mlkit.vision.text.TextRecognition;
 import com.google.mlkit.vision.text.TextRecognizer;
 import com.google.mlkit.vision.text.latin.TextRecognizerOptions;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Locale;
 
@@ -97,6 +98,10 @@ public class CameraHomePage extends AppCompatActivity implements View.OnClickLis
                     thumbnail = rotateBitmap(thumbnail, 90);
                     display.setImageBitmap(thumbnail);
                     String path = getRealPathFromURI(imageUri);
+                    File f = new File(path);
+                    if (f.exists()){
+                        f.delete();
+                    }
                     TextRecognizer recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS);
                     InputImage image = InputImage.fromBitmap(thumbnail, 0);
                     Task<Text> processedImage =
