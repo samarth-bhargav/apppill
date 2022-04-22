@@ -6,23 +6,34 @@ import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import android.Manifest;
+import android.app.Activity;
+import android.app.ActivityManager;
+import android.content.ComponentName;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.Matrix;
+import android.hardware.Camera;
+import android.hardware.camera2.CameraAccessException;
+import android.hardware.camera2.CameraCharacteristics;
+import android.hardware.camera2.CameraManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.speech.tts.TextToSpeech;
 import android.util.Log;
+import android.util.SparseIntArray;
+import android.view.Surface;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -54,6 +65,8 @@ public class CameraHomePage extends AppCompatActivity implements View.OnClickLis
     public static final int MEDIA_TYPE_IMAGE = 1;
     public static final int MEDIA_TYPE_VIDEO = 2;
     private TextToSpeech tts;
+    private int rotation;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -95,15 +108,26 @@ public class CameraHomePage extends AppCompatActivity implements View.OnClickLis
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
-                    thumbnail = rotateBitmap(thumbnail, 90);
+                    assert thumbnail != null;
+                    if (thumbnail.getWidth() <= thumbnail.getHeight()){
+                        thumbnail = rotateBitmap(thumbnail, 270);
+                    }
+                    else{
+                        thumbnail = rotateBitmap(thumbnail, 90);
+                    }
                     display.setImageBitmap(thumbnail);
                     String path = getRealPathFromURI(imageUri);
+                    InputImage image = null;
+                    try {
+                        image = InputImage.fromFilePath(getApplicationContext(), imageUri);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                     File f = new File(path);
                     if (f.exists()){
                         f.delete();
                     }
                     TextRecognizer recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS);
-                    InputImage image = InputImage.fromBitmap(thumbnail, 0);
                     Task<Text> processedImage =
                             recognizer.process(image)
                                     .addOnSuccessListener(new OnSuccessListener<Text>() {
