@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.apppill">
+    package="com.sharktank.apppill">
 
     <uses-permission
         android:name="android.permission.CAMERA"
@@ -25,16 +25,16 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.AppPill">
         <activity
-            android:name=".SearchHomePage"
+            android:name="com.sharktank.apppill.SearchHomePage"
             android:exported="false" />
         <activity
-            android:name=".HomePage"
+            android:name="com.sharktank.apppill.HomePage"
             android:exported="false" />
         <activity
-            android:name=".DisplayUserInfo"
+            android:name="com.sharktank.apppill.DisplayUserInfo"
             android:exported="false" />
         <activity
-            android:name=".CameraHomePage"
+            android:name="com.sharktank.apppill.CameraHomePage"
             android:exported="false" />
 
         <provider
@@ -52,13 +52,13 @@
             android:value="ocr" />
 
         <activity
-            android:name=".LoginUser"
+            android:name="com.sharktank.apppill.LoginUser"
             android:exported="false" />
         <activity
-            android:name=".RegisterUser"
+            android:name="com.sharktank.apppill.RegisterUser"
             android:exported="false" />
         <activity
-            android:name=".MainActivity"
+            android:name="com.sharktank.apppill.MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
