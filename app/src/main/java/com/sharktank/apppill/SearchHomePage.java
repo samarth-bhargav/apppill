@@ -22,6 +22,8 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.Locale;
 import java.util.Objects;
 
@@ -90,8 +92,9 @@ public class SearchHomePage extends AppCompatActivity implements View.OnClickLis
                             if (task.isSuccessful()){
                                 DocumentSnapshot doc = task.getResult();
                                 if (doc.exists()){
-                                    displayText.setText("You last took " + medicineName + " at " + Objects.requireNonNull(doc.get("lastTimeTaken")).toString());
-                                    speak("You last took " + medicineName + " at " + Objects.requireNonNull(doc.get("lastTimeTaken")).toString());
+                                    ArrayList<String> lastTimesTaken = (ArrayList<String>) doc.get("lastTimeTaken");
+                                    displayText.setText("You last took " + medicineName + " at " + lastTimesTaken.get(lastTimesTaken.size()-1));
+                                    speak("You last took " + medicineName + " at " + lastTimesTaken.get(lastTimesTaken.size()-1));
                                 }
                                 else{
                                     displayText.setText("You have never taken this medicine before");

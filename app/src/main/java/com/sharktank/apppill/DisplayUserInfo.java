@@ -27,11 +27,14 @@ import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.rpc.Help;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.Map;
 
 
@@ -152,12 +155,12 @@ public class DisplayUserInfo extends AppCompatActivity implements View.OnClickLi
                     public void onSuccess(DocumentSnapshot documentSnapshot) {
                         if (documentSnapshot.exists()){
                             //user has taken medication before!
-                            Object temp = documentSnapshot.get("lastTimeTaken");
+                            ArrayList<String> temp = (ArrayList<String>) documentSnapshot.get("lastTimeTaken");
                             if (temp == null){
                                 lastTimeTaken = "what";
                             }
                             else{
-                                lastTimeTaken = temp.toString();
+                                lastTimeTaken = temp.get(temp.size()-1);
                             }
                             displayLastTimeTaken.setText("Last Time Taken: " + lastTimeTaken);
 //                            tts.speak("Last Time Taken: " + documentSnapshot.get("lastTimeTaken").toString(), TextToSpeech.QUEUE_FLUSH, null);
@@ -183,12 +186,20 @@ public class DisplayUserInfo extends AppCompatActivity implements View.OnClickLi
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 DocumentSnapshot doc = task.getResult();
                 Map<String, Object> lastTimeTaken = new HashMap<>();
-                lastTimeTaken.put("lastTimeTaken", getCurrentTime());
                 if (doc.exists()){
+                    ArrayList<String> lastTimesTaken = (ArrayList<String>) doc.get("lastTimeTaken");
+                    if (lastTimesTaken.size() > 30){
+                        lastTimesTaken.remove(0);
+                    }
+                    lastTimesTaken.add(getCurrentTime());
+                    lastTimeTaken.put("lastTimeTaken", lastTimesTaken);
                     medicineLog.update(lastTimeTaken);
                 }
                 else{
                     //first time taking pill
+                    LinkedList<String> lastTimesTaken = new LinkedList<>();
+                    lastTimesTaken.add(getCurrentTime());
+                    lastTimeTaken.put("lastTimeTaken", lastTimesTaken);
                     medicineLog.set(lastTimeTaken);
                 }
             }
@@ -215,7 +226,7 @@ public class DisplayUserInfo extends AppCompatActivity implements View.OnClickLi
     public void startMedicineNotification(Context context, long delay) {
         Intent _intent = new Intent(context, AlarmBroadcastReceiver.class);
         _intent.putExtra("medicine", medicine);
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, _intent, FLAG_IMMUTABLE);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(context, medicine.hashCode(), _intent, FLAG_IMMUTABLE);
         AlarmManager alarmManager = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
         alarmManager.set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + delay, pendingIntent);
     }
