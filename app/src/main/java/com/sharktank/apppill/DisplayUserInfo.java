@@ -1,8 +1,13 @@
 package com.sharktank.apppill;
 
+import static android.app.PendingIntent.FLAG_IMMUTABLE;
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.SystemClock;
@@ -50,8 +55,6 @@ public class DisplayUserInfo extends AppCompatActivity implements View.OnClickLi
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_display_user_info);
-
-        setup();
         db = FirebaseFirestore.getInstance();
         medicineDatabase = new MedicineDatabase();
         currentUser = FirebaseAuth.getInstance().getCurrentUser();
@@ -122,6 +125,7 @@ public class DisplayUserInfo extends AppCompatActivity implements View.OnClickLi
                 break;
             case R.id.UserInfoYes:
                 medicineLogUpdate();
+                startMedicineNotification(getApplicationContext(), medicineDatabase.getDosageInMillis(dosage));
                 speak("You took " + medicine);
                 while (tts.isSpeaking()){}
                 startActivity(new Intent(DisplayUserInfo.this, CameraHomePage.class));
@@ -173,9 +177,6 @@ public class DisplayUserInfo extends AppCompatActivity implements View.OnClickLi
                     }
                 });
     }
-
-
-
     public void medicineLogUpdate() {
         medicineLog.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
@@ -211,7 +212,11 @@ public class DisplayUserInfo extends AppCompatActivity implements View.OnClickLi
         }
         super.onDestroy();
     }
-    public void setup(){
-
+    public void startMedicineNotification(Context context, long delay) {
+        Intent _intent = new Intent(context, AlarmBroadcastReceiver.class);
+        _intent.putExtra("medicine", medicine);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, _intent, FLAG_IMMUTABLE);
+        AlarmManager alarmManager = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
+        alarmManager.set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + delay, pendingIntent);
     }
 }
